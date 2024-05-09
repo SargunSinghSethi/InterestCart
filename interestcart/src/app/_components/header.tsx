@@ -12,11 +12,11 @@ export default function Header() {
                     Hi, John
                 </div>
             </div>
-            <div className=" flex justify-between mt-2">
+            <div className=" flex justify-between mt-2 mb-6">
                 <div className="text-3xl font-bold">
                     ECOMMERCE
                 </div>
-                <div className="flex gap-4 grow justify-center font-semibold items-end mr-38px">
+                <div className="flex gap-6 grow justify-center font-semibold items-end pr-14">
                     <a href="#">Categories</a>
                     <a href="#">Sale</a>
                     <a href="#">Clearance</a>
@@ -38,16 +38,16 @@ export default function Header() {
             </div>
             <div className="flex justify-center text-sm font-semibold items-center gap-4 mt-4 bg-slate-100">
                 <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="cursor-pointer w-5 h-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="cursor-pointer w-4 h-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                     </svg>
 
                 </div>
-                <div>
+                <div className="text-xs">
                     Get 10% off on business sign up
                 </div>
                 <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="cursor-pointer w-5 h-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="cursor-pointer w-4 h-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                     </svg>
 
