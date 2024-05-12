@@ -7,20 +7,11 @@
  * need to use are documented accordingly near the end.
  */
 import { initTRPC } from "@trpc/server";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "~/server/db";
-
-let token: string;
-export function setToken(newToken: string) {
-  /**
-   * You can also save the token to cookies, and initialize from
-   * cookies above.
-   */
-  token = newToken;
-}
 /**
  * 1. CONTEXT
  *
@@ -33,11 +24,18 @@ export function setToken(newToken: string) {
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: { req: NextApiRequest , res: NextApiResponse}) => {
+// export const createTRPCContext = async (opts: { req: NextRequest , res: NextResponse,}) => {
+//   return {
+//     db,
+//     req: opts.req,
+//     res: opts.res,
+//   };
+// };
+
+export const createTRPCContext = async (opts: { req: NextRequest, resHeaders: Headers, }) => {
   return {
     db,
-    req: opts.req,
-    res: opts.res,
+    ...opts,
   };
 };
 

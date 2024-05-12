@@ -1,9 +1,9 @@
 import { sign } from "jsonwebtoken";
-import { parseCookies } from "nookies";
+import { cookies } from "next/headers";
 import { z } from "zod";
+import { SendEmail } from "~/actions/mailer";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-const jwtSecret = process.env.JWT_TOKEN;
 
 export const postRouter = createTRPCRouter({
   create: publicProcedure
@@ -15,49 +15,71 @@ export const postRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         const existingUser = await ctx.db.user.findUnique({
-          where : {
+          where: {
             email: input.email,
           }
         })
         if (existingUser) {
-          // User already exists, return custom error message
           throw new Error("User with this email already exists");
         }
-        const newUser = await ctx.db.user.create({
+        const user = await ctx.db.user.create({
           data: {
             username: input.username,
             email: input.email,
             password: input.password
           },
         });
-        console.log(newUser);
-        return { accessToken: "Signup completed. Please verify yourself." };
-      } catch (error : any) {
+        //send verification email
+        await SendEmail({
+          email : input.email,
+          userId : user.id,
+        })
+        return {message : "Sign up Completed. Please Verify yourself"};
+      } catch (error: any) {
         if (error.message = "User with this email already exists") {
-          return { accessToken: "User already exists" };
+          return { message: "User already exists" };
         }
         console.error("Error creating user:", error);
-        return { accessToken: "An error occurred. Please try again later." };
-
-
+        return { message: "An error occurred. Please try again later." };
       }
-      const token = sign({ username: input.username }, jwtSecret || "");
-      const cookies = parseCookies(ctx);
-      console.log(token);
-
-      // if(cookies) {
-      //   ctx.res.setHeader(
-      //     "Set-Cookie",
-      //     cookies.serialize("token",token, {
-      //       httpOnly : true,
-      //       maxAge: 30* 24 *60*60,
-      //       path: "/",
-      //       sameSite: "lax",
-      //       secure: process.env.NODE_ENV === "production"
-      //     })
-      //   );
-      // } else {
-      //   console.error("Error : Failed to parse cookies");
-      // }
+      
     }),
+  verifyEmail : publicProcedure
+    .input(z.object({
+      verificationToken : z.string().max(6).min(6),
+    }))
+    .mutation(async ({ctx, input}) => {
+      try {
+        const session = cookies().get("session")?.value;
+        if(!session) throw new Error("No Session");
+        const user = await ctx.db.user.findFirst({
+          where : {
+            sessionToken : session,
+          },
+        })
+        if(!user) throw new Error("Invalid Session Token");
+        else if (!user.verifyToken && !user.verifyTokenExpiry) 
+          throw new Error("No Verification Token Present")
+        else if (user.verifyToken && user.verifyToken !== input.verificationToken)
+          throw new Error("Verification Token Invalid");
+        else if (user.verifyTokenExpiry && user.verifyTokenExpiry < Date.now())
+          throw new Error("Verification Token Expired");
+        await ctx.db.user.update({
+          where : {
+            id : user.id,
+          },
+           data : {
+            verified : true,
+            verifyToken : undefined,
+            verifyTokenExpiry : undefined,
+           }
+        })
+        return {
+          message : "Email Verified",
+        }
+    } catch (error : any) {
+        console.log(error);
+        return { message : error}
+      }
+    })
 });

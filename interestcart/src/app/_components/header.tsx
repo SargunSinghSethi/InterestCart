@@ -43,7 +43,7 @@ export default function Header() {
                     </svg>
 
                 </div>
-                <div className="text-xs">
+                <div className="text-sm">
                     Get 10% off on business sign up
                 </div>
                 <div>
